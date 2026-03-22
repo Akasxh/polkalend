@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PolkaLend - Decentralized Micro-Lending on Polkadot</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card: #161b22;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --text-muted: #8b949e;
+      --accent: #e6007a; /* Polkadot pink */
+      --accent2: #552bbf;
+      --green: #2ecc71;
+      --orange: #f39c12;
+      --red: #e74c3c;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    header h1 span {
+      font-weight: 300;
+      opacity: 0.8;
+    }
+
+    .connect-btn {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fff;
+      padding: 0.5rem 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+
+    .connect-btn:hover { background: rgba(255,255,255,0.25); }
+    .connect-btn.connected { background: var(--green); border-color: var(--green); }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+
+    .badge {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .stat-card .label {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-card .value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-top: 0.3rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Section */
+    .section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .section h2 {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: #fff;
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .apy-green { color: var(--green); font-weight: 600; }
+    .apy-orange { color: var(--orange); font-weight: 600; }
+
+    .util-bar-bg {
+      background: var(--border);
+      border-radius: 4px;
+      height: 8px;
+      width: 100px;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 0.5rem;
+    }
+
+    .util-bar {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.3s;
+    }
+
+    /* Activity feed */
+    #activity-feed {
+      list-style: none;
+    }
+
+    #activity-feed li {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    #activity-feed li:last-child { border-bottom: none; }
+
+    .activity-type {
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .deposit { background: rgba(46,204,113,0.15); color: var(--green); }
+    .borrow { background: rgba(243,156,18,0.15); color: var(--orange); }
+    .flash-loan { background: rgba(230,0,122,0.15); color: var(--accent); }
+    .repay { background: rgba(52,152,219,0.15); color: #3498db; }
+    .liquidate { background: rgba(231,76,60,0.15); color: var(--red); }
+
+    .activity-detail { flex: 1; color: var(--text-muted); font-family: monospace; font-size: 0.85rem; }
+    .activity-time { color: var(--text-muted); font-size: 0.8rem; }
+
+    /* Chart */
+    .chart-container {
+      display: flex;
+      justify-content: center;
+    }
+
+    canvas {
+      background: var(--bg);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    /* Two-column layout */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .two-col { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>PolkaLend <span>| Micro-Lending Protocol</span></h1>
+    <button class="connect-btn" id="connect-btn" onclick="connectWallet()">Connect Wallet</button>
+  </header>
+
+  <div class="container">
+    <span class="badge">Live on Moonbeam (Polkadot)</span>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Total Value Locked</div>
+        <div class="value" id="tvl">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Total Borrowed</div>
+        <div class="value" id="total-borrowed">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Active Users</div>
+        <div class="value" id="total-users">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Flash Loans (24h)</div>
+        <div class="value" id="flash-loans">--</div>
+      </div>
+    </div>
+
+    <!-- Markets -->
+    <div class="section">
+      <h2>Markets</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Token</th>
+            <th>Price</th>
+            <th>Deposits</th>
+            <th>Borrows</th>
+            <th>Utilization</th>
+            <th>Supply APY</th>
+            <th>Borrow APY</th>
+            <th>CF</th>
+          </tr>
+        </thead>
+        <tbody id="markets-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Two-column: Chart + Activity -->
+    <div class="two-col">
+      <div class="section">
+        <h2>Interest Rate Model</h2>
+        <div class="chart-container">
+          <canvas id="rate-chart" width="480" height="300"></canvas>
+        </div>
+      </div>
+      <div class="section">
+        <h2>Recent Activity</h2>
+        <ul id="activity-feed"></ul>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Built for the <a href="https://polkadothackathon.com/">Polkadot Solidity Hackathon 2026</a>
+    &middot; Powered by Moonbeam EVM
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
