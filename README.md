@@ -36,6 +36,22 @@ Moonbeam provides a complete Ethereum-compatible environment within Polkadot:
 
 ## Architecture
 
+```mermaid
+graph TD
+    A[User] -->|Deposit/Borrow| B[LendingPool.sol]
+    B --> C[InterestRateModel.sol]
+    B --> D[PriceOracle.sol]
+    B --> E[FlashLoan.sol]
+    C -->|Kinked Rate Curve| F[Dynamic APY]
+    D -->|Asset Prices| G[Health Factor Check]
+    G -->|Unhealthy| H[Liquidation Engine]
+    B --> I[PolkaToken.sol]
+    I -->|Governance| J[Protocol Rewards]
+    B -->|Moonbeam EVM| K[Polkadot XCM]
+```
+
+### Contract Architecture
+
 ```
                           +-----------------------+
                           |      Frontend (UI)    |

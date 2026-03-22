@@ -1,106 +1,61 @@
+# PolkaLend -- Decentralized Micro-Lending Protocol
 
-Default to using Bun instead of Node.js.
+DeFi micro-lending protocol on Polkadot's Moonbeam (EVM-compatible). Features flash loans, collateralized lending, liquidations, and a kinked interest rate model. Built for the Polkadot Solidity Hackathon 2026.
 
-- Use `bun <file>` instead of `node <file>` or `ts-node <file>`
-- Use `bun test` instead of `jest` or `vitest`
-- Use `bun build <file.html|file.ts|file.css>` instead of `webpack` or `esbuild`
-- Use `bun install` instead of `npm install` or `yarn install` or `pnpm install`
-- Use `bun run <script>` instead of `npm run <script>` or `yarn run <script>` or `pnpm run <script>`
-- Use `bunx <package> <command>` instead of `npx <package> <command>`
-- Bun automatically loads .env, so don't use dotenv.
+## Quick Start
 
-## APIs
+```bash
+npm install && npx hardhat compile && npx hardhat test
+```
 
-- `Bun.serve()` supports WebSockets, HTTPS, and routes. Don't use `express`.
-- `bun:sqlite` for SQLite. Don't use `better-sqlite3`.
-- `Bun.redis` for Redis. Don't use `ioredis`.
-- `Bun.sql` for Postgres. Don't use `pg` or `postgres.js`.
-- `WebSocket` is built-in. Don't use `ws`.
-- Prefer `Bun.file` over `node:fs`'s readFile/writeFile
-- Bun.$`ls` instead of execa.
+## Key Contracts
+
+- **LendingPool.sol** -- Core lending logic: deposit, withdraw, borrow, repay, liquidate, flash loans. Inherits FlashLoan. Uses ReentrancyGuard and SafeERC20.
+- **FlashLoan.sol** -- Uncollateralized single-tx loans with 0.09% fee. Calls IFlashLoanReceiver callback.
+- **InterestRateModel.sol** -- Kinked rate model (Compound-style): gentle slope below 80% utilization, steep slope above.
+- **PriceOracle.sol** -- Owner-managed price feeds. Replace with Chainlink/DIA in production.
+- **PolkaToken.sol** -- PLEND ERC-20 governance token with 100M max supply, owner-only minting.
+
+## Deployment
+
+```bash
+# Local
+npx hardhat node &
+npx hardhat run scripts/deploy.js --network localhost
+
+# Moonbase Alpha testnet
+export PRIVATE_KEY=0xYourPrivateKey
+npx hardhat run scripts/deploy.js --network moonbase
+
+# Moonbeam mainnet
+export PRIVATE_KEY=0xYourPrivateKey
+npx hardhat run scripts/deploy.js --network moonbeam
+```
+
+Deploy script deploys: PolkaToken -> InterestRateModel -> PriceOracle -> LendingPool, then lists PLEND token as a market.
 
 ## Testing
 
-Use `bun test` to run tests.
-
-```ts#index.test.ts
-import { test, expect } from "bun:test";
-
-test("hello world", () => {
-  expect(1).toBe(1);
-});
+```bash
+npx hardhat test
 ```
 
-## Frontend
+12 tests covering: deposits, withdrawals, borrowing, over-leverage rejection, repayment, collateral calculations, undercollateralized withdrawal prevention, flash loans, interest rate model, liquidation, unlisted token rejection, event emission.
 
-Use HTML imports with `Bun.serve()`. Don't use `vite`. HTML imports fully support React, CSS, Tailwind.
+## Stack
 
-Server:
+- Solidity 0.8.20 with optimizer (200 runs)
+- Hardhat + ethers.js + Chai
+- OpenZeppelin (ERC20, SafeERC20, Ownable, ReentrancyGuard)
+- Networks: Moonbeam (1284), Moonbase Alpha (1287)
 
-```ts#index.ts
-import index from "./index.html"
+## Project Structure
 
-Bun.serve({
-  routes: {
-    "/": index,
-    "/api/users/:id": {
-      GET: (req) => {
-        return new Response(JSON.stringify({ id: req.params.id }));
-      },
-    },
-  },
-  // optional websocket support
-  websocket: {
-    open: (ws) => {
-      ws.send("Hello, world!");
-    },
-    message: (ws, message) => {
-      ws.send(message);
-    },
-    close: (ws) => {
-      // handle close
-    }
-  },
-  development: {
-    hmr: true,
-    console: true,
-  }
-})
 ```
-
-HTML files can import .tsx, .jsx or .js files directly and Bun's bundler will transpile & bundle automatically. `<link>` tags can point to stylesheets and Bun's CSS bundler will bundle.
-
-```html#index.html
-<html>
-  <body>
-    <h1>Hello, world!</h1>
-    <script type="module" src="./frontend.tsx"></script>
-  </body>
-</html>
+contracts/           -- Solidity source
+  interfaces/        -- ILendingPool, IFlashLoanReceiver
+  mocks/             -- MockFlashLoanReceiver for testing
+scripts/deploy.js    -- Deployment script
+test/                -- Hardhat test suite
+frontend/            -- Static HTML dashboard
 ```
-
-With the following `frontend.tsx`:
-
-```tsx#frontend.tsx
-import React from "react";
-import { createRoot } from "react-dom/client";
-
-// import .css files directly and it works
-import './index.css';
-
-const root = createRoot(document.body);
-
-export default function Frontend() {
-  return <h1>Hello, world!</h1>;
-}
-
-root.render(<Frontend />);
-```
-
-Then, run index.ts
-
-```sh
-bun --hot ./index.ts
-```
-
-For more information, read the Bun API docs in `node_modules/bun-types/docs/**.mdx`.
