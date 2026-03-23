@@ -3,297 +3,456 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="PolkaLend is a decentralized micro-lending protocol on Polkadot's Moonbeam network. Deposit, borrow, and execute flash loans with a kinked interest rate model.">
   <title>PolkaLend - Decentralized Micro-Lending on Polkadot</title>
-  <style>
-    :root {
-      --bg: #0d1117;
-      --card: #161b22;
-      --border: #30363d;
-      --text: #c9d1d9;
-      --text-muted: #8b949e;
-      --accent: #e6007a; /* Polkadot pink */
-      --accent2: #552bbf;
-      --green: #2ecc71;
-      --orange: #f39c12;
-      --red: #e74c3c;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-    }
-
-    header {
-      background: linear-gradient(135deg, var(--accent2), var(--accent));
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    header h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #fff;
-    }
-
-    header h1 span {
-      font-weight: 300;
-      opacity: 0.8;
-    }
-
-    .connect-btn {
-      background: rgba(255,255,255,0.15);
-      border: 1px solid rgba(255,255,255,0.3);
-      color: #fff;
-      padding: 0.5rem 1.2rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: background 0.2s;
-    }
-
-    .connect-btn:hover { background: rgba(255,255,255,0.25); }
-    .connect-btn.connected { background: var(--green); border-color: var(--green); }
-
-    .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-
-    .badge {
-      display: inline-block;
-      background: var(--accent);
-      color: #fff;
-      padding: 0.2rem 0.6rem;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      margin-bottom: 1rem;
-    }
-
-    /* Stats Grid */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    .stat-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.5rem;
-      text-align: center;
-    }
-
-    .stat-card .label {
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .stat-card .value {
-      font-size: 1.8rem;
-      font-weight: 700;
-      margin-top: 0.3rem;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    /* Section */
-    .section {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .section h2 {
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-      color: #fff;
-    }
-
-    /* Table */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th, td {
-      padding: 0.75rem;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-    }
-
-    th {
-      color: var(--text-muted);
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .apy-green { color: var(--green); font-weight: 600; }
-    .apy-orange { color: var(--orange); font-weight: 600; }
-
-    .util-bar-bg {
-      background: var(--border);
-      border-radius: 4px;
-      height: 8px;
-      width: 100px;
-      display: inline-block;
-      vertical-align: middle;
-      margin-right: 0.5rem;
-    }
-
-    .util-bar {
-      height: 100%;
-      border-radius: 4px;
-      transition: width 0.3s;
-    }
-
-    /* Activity feed */
-    #activity-feed {
-      list-style: none;
-    }
-
-    #activity-feed li {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 0.6rem 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    #activity-feed li:last-child { border-bottom: none; }
-
-    .activity-type {
-      padding: 0.2rem 0.5rem;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      min-width: 80px;
-      text-align: center;
-    }
-
-    .deposit { background: rgba(46,204,113,0.15); color: var(--green); }
-    .borrow { background: rgba(243,156,18,0.15); color: var(--orange); }
-    .flash-loan { background: rgba(230,0,122,0.15); color: var(--accent); }
-    .repay { background: rgba(52,152,219,0.15); color: #3498db; }
-    .liquidate { background: rgba(231,76,60,0.15); color: var(--red); }
-
-    .activity-detail { flex: 1; color: var(--text-muted); font-family: monospace; font-size: 0.85rem; }
-    .activity-time { color: var(--text-muted); font-size: 0.8rem; }
-
-    /* Chart */
-    .chart-container {
-      display: flex;
-      justify-content: center;
-    }
-
-    canvas {
-      background: var(--bg);
-      border-radius: 8px;
-      border: 1px solid var(--border);
-    }
-
-    /* Two-column layout */
-    .two-col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-    }
-
-    @media (max-width: 768px) {
-      .two-col { grid-template-columns: 1fr; }
-      .stats-grid { grid-template-columns: 1fr 1fr; }
-    }
-
-    /* Footer */
-    footer {
-      text-align: center;
-      padding: 2rem;
-      color: var(--text-muted);
-      font-size: 0.85rem;
-    }
-
-    footer a { color: var(--accent); text-decoration: none; }
-  </style>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%23e6007a'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='system-ui,sans-serif' font-size='20' font-weight='700' fill='white'%3EP%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header>
-    <h1>PolkaLend <span>| Micro-Lending Protocol</span></h1>
-    <button class="connect-btn" id="connect-btn" onclick="connectWallet()">Connect Wallet</button>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="15" x2="17" y2="15"/>
+        </svg>
+      </button>
+      <a class="logo" href="#">PolkaLend <span>Protocol</span></a>
+    </div>
+    <div class="header-right">
+      <div class="network-badge"><span class="dot"></span> Moonbeam</div>
+      <button class="connect-btn" id="connect-btn">Connect Wallet</button>
+    </div>
   </header>
 
-  <div class="container">
-    <span class="badge">Live on Moonbeam (Polkadot)</span>
-
-    <!-- Stats -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="label">Total Value Locked</div>
-        <div class="value" id="tvl">--</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Total Borrowed</div>
-        <div class="value" id="total-borrowed">--</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Active Users</div>
-        <div class="value" id="total-users">--</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Flash Loans (24h)</div>
-        <div class="value" id="flash-loans">--</div>
-      </div>
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <div class="nav-items">
+      <a class="nav-item active" data-page="dashboard" href="#dashboard">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-item" data-page="lending" href="#lending">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="8" y1="2" x2="8" y2="14"/><polyline points="4,10 8,14 12,10"/><line x1="3" y1="2" x2="13" y2="2"/></svg>
+        Lending
+      </a>
+      <a class="nav-item" data-page="borrowing" href="#borrowing">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="8" y1="14" x2="8" y2="2"/><polyline points="4,6 8,2 12,6"/><line x1="3" y1="14" x2="13" y2="14"/></svg>
+        Borrowing
+      </a>
+      <a class="nav-item" data-page="flash-loans" href="#flash-loans">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9,1 5,9 8,9 7,15 11,7 8,7 9,1"/></svg>
+        Flash Loans
+      </a>
+      <a class="nav-item" data-page="analytics" href="#analytics">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="8" width="3" height="7"/><rect x="6" y="4" width="3" height="11"/><rect x="11" y="1" width="3" height="14"/></svg>
+        Analytics
+      </a>
     </div>
+    <div class="sidebar-footer">PolkaLend v1.0.0<br>Polkadot Hackathon 2026</div>
+  </nav>
 
-    <!-- Markets -->
-    <div class="section">
-      <h2>Markets</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Token</th>
-            <th>Price</th>
-            <th>Deposits</th>
-            <th>Borrows</th>
-            <th>Utilization</th>
-            <th>Supply APY</th>
-            <th>Borrow APY</th>
-            <th>CF</th>
-          </tr>
-        </thead>
-        <tbody id="markets-body"></tbody>
-      </table>
-    </div>
+  <!-- Toast container -->
+  <div class="toast-container" id="toast-container"></div>
 
-    <!-- Two-column: Chart + Activity -->
-    <div class="two-col">
-      <div class="section">
-        <h2>Interest Rate Model</h2>
-        <div class="chart-container">
-          <canvas id="rate-chart" width="480" height="300"></canvas>
+  <!-- Main content -->
+  <div class="main">
+    <div class="main-inner">
+
+      <!-- ==================== DASHBOARD ==================== -->
+      <section class="page active" id="page-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+            <div class="stat-label">Total Value Locked</div>
+            <div class="stat-value" data-target="2450000" data-prefix="$">--</div>
+            <div class="stat-delta positive">+12.4% (24h)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22,7 13.5,15.5 8.5,10.5 2,17"/><polyline points="16,7 22,7 22,13"/></svg></div>
+            <div class="stat-label">Total Borrowed</div>
+            <div class="stat-value" data-target="1230000" data-prefix="$">--</div>
+            <div class="stat-delta positive">+8.2% (24h)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+            <div class="stat-label">Active Users</div>
+            <div class="stat-value" data-target="847" data-prefix="">--</div>
+            <div class="stat-delta positive">+23 (24h)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="13,2 7,12 10,12 9,22 15,12 12,12 13,2"/></svg></div>
+            <div class="stat-label">Flash Loans (24h)</div>
+            <div class="stat-value" data-target="156" data-prefix="">--</div>
+            <div class="stat-delta positive">+15 vs yesterday</div>
+          </div>
         </div>
-      </div>
-      <div class="section">
-        <h2>Recent Activity</h2>
-        <ul id="activity-feed"></ul>
-      </div>
+
+        <!-- Markets Table -->
+        <div class="card">
+          <h3>Markets</h3>
+          <table>
+            <thead>
+              <tr><th>Token</th><th>Price</th><th>Deposits</th><th>Borrows</th><th>Utilization</th><th>Supply APY</th><th>Borrow APY</th><th>CF</th><th></th></tr>
+            </thead>
+            <tbody id="markets-body"></tbody>
+          </table>
+        </div>
+
+        <!-- Two-column: Chart + Activity -->
+        <div class="grid-2">
+          <div class="card">
+            <h3>Interest Rate Model</h3>
+            <canvas id="rate-chart" height="300"></canvas>
+          </div>
+          <div class="card">
+            <h3>Recent Activity</h3>
+            <ul class="activity-list" id="activity-feed"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== LENDING ==================== -->
+      <section class="page" id="page-lending">
+        <div class="page-header">
+          <h2>Lending</h2>
+          <p>Deposit assets to earn interest and use as collateral.</p>
+        </div>
+        <div class="grid-60-40">
+          <div>
+            <!-- Deposit form -->
+            <div class="card">
+              <h3>Deposit</h3>
+              <div class="form-group">
+                <label class="form-label">Token</label>
+                <select class="form-select" id="deposit-token">
+                  <option value="GLMR">GLMR</option><option value="USDC">USDC</option>
+                  <option value="WETH">WETH</option><option value="PLEND">PLEND</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Amount</label>
+                <div class="input-wrapper">
+                  <input class="form-input" id="deposit-amount" type="number" placeholder="0.00" min="0" step="any">
+                  <button class="input-max" id="deposit-max">MAX</button>
+                </div>
+                <div class="form-error" id="deposit-error">Amount exceeds wallet balance</div>
+              </div>
+              <div class="form-info">Wallet Balance: <strong id="deposit-balance">10,000 GLMR</strong></div>
+              <div class="form-info">Current APY: <strong class="text-green" id="deposit-apy">3.2%</strong></div>
+              <button class="btn-primary" id="deposit-btn" style="margin-top:16px">Deposit</button>
+            </div>
+            <!-- Withdraw form -->
+            <div class="card">
+              <h3>Withdraw</h3>
+              <div class="form-group">
+                <label class="form-label">Token</label>
+                <select class="form-select" id="withdraw-token">
+                  <option value="GLMR">GLMR</option><option value="USDC">USDC</option>
+                  <option value="WETH">WETH</option><option value="PLEND">PLEND</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Amount</label>
+                <div class="input-wrapper">
+                  <input class="form-input" id="withdraw-amount" type="number" placeholder="0.00" min="0" step="any">
+                  <button class="input-max" id="withdraw-max">MAX</button>
+                </div>
+                <div class="form-error" id="withdraw-error">Amount exceeds deposited balance</div>
+              </div>
+              <div class="form-info">Deposited: <strong id="withdraw-balance">5,000 GLMR</strong></div>
+              <button class="btn-primary" id="withdraw-btn" style="margin-top:16px">Withdraw</button>
+            </div>
+            <!-- Positions table -->
+            <div class="card">
+              <h3>Your Positions</h3>
+              <table>
+                <thead><tr><th>Token</th><th>Deposited</th><th>Interest</th><th>APY</th><th></th></tr></thead>
+                <tbody id="positions-body"></tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <!-- Health factor gauge -->
+            <div class="card">
+              <h3>Health Factor</h3>
+              <div class="health-gauge-container">
+                <div class="health-gauge" id="health-gauge">
+                  <div class="health-gauge-inner">
+                    <div class="health-value" id="health-value">2.45</div>
+                    <div class="health-label">Health Factor</div>
+                  </div>
+                </div>
+                <div class="health-bar">
+                  <div class="health-bar-marker" id="health-marker" style="left:82%"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text-dim);margin-top:4px">
+                  <span>Danger</span><span>Warning</span><span>Safe</span>
+                </div>
+                <p class="text-muted" style="margin-top:12px;font-size:0.8rem">Liquidation at: &lt; 1.0</p>
+              </div>
+            </div>
+            <!-- Position summary -->
+            <div class="card">
+              <h3>Position Summary</h3>
+              <div class="summary-row"><span class="summary-label">Total Deposited</span><span class="summary-value">$7,400</span></div>
+              <div class="summary-row"><span class="summary-label">Total Borrowed</span><span class="summary-value">$3,200</span></div>
+              <div class="summary-row"><span class="summary-label">Net Position</span><span class="summary-value text-green">$4,200</span></div>
+              <div class="summary-row"><span class="summary-label">Collateral Used</span><span class="summary-value">43.2%</span></div>
+              <div class="summary-row"><span class="summary-label">Borrow Limit</span><span class="summary-value">$5,550</span></div>
+              <div class="summary-row"><span class="summary-label">Available to Borrow</span><span class="summary-value text-accent">$2,350</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== BORROWING ==================== -->
+      <section class="page" id="page-borrowing">
+        <div class="page-header">
+          <h2>Borrowing</h2>
+          <p>Borrow against your collateral. Monitor health factor to avoid liquidation.</p>
+        </div>
+        <div class="grid-60-40">
+          <div>
+            <!-- Borrow form -->
+            <div class="card">
+              <h3>Borrow</h3>
+              <div class="form-group">
+                <label class="form-label">Token</label>
+                <select class="form-select" id="borrow-token">
+                  <option value="GLMR">GLMR</option><option value="USDC">USDC</option>
+                  <option value="WETH">WETH</option><option value="PLEND">PLEND</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Amount</label>
+                <div class="input-wrapper">
+                  <input class="form-input" id="borrow-amount" type="number" placeholder="0.00" min="0" step="any">
+                  <button class="input-max" id="borrow-max">MAX SAFE</button>
+                </div>
+                <div class="form-error" id="borrow-error">Exceeds available borrow limit</div>
+              </div>
+              <div class="form-info">Available to Borrow: <strong class="text-accent">$2,350</strong></div>
+              <div class="form-info">New Health Factor: <strong class="text-green" id="borrow-hf-preview">2.45</strong></div>
+              <button class="btn-primary" id="borrow-btn" style="margin-top:16px">Borrow</button>
+            </div>
+            <!-- Repay form -->
+            <div class="card">
+              <h3>Repay</h3>
+              <div class="form-group">
+                <label class="form-label">Token</label>
+                <select class="form-select" id="repay-token">
+                  <option value="GLMR">GLMR</option><option value="USDC">USDC</option>
+                  <option value="WETH">WETH</option><option value="PLEND">PLEND</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Amount</label>
+                <div class="input-wrapper">
+                  <input class="form-input" id="repay-amount" type="number" placeholder="0.00" min="0" step="any">
+                  <button class="input-max" id="repay-max">MAX</button>
+                </div>
+              </div>
+              <div class="form-info">Outstanding Debt: <strong class="text-red">3,245.20 USDC</strong></div>
+              <button class="btn-primary" id="repay-btn" style="margin-top:16px">Repay</button>
+            </div>
+            <!-- Active borrows table -->
+            <div class="card">
+              <h3>Active Borrows</h3>
+              <table>
+                <thead><tr><th>Token</th><th>Borrowed</th><th>Interest</th><th>Borrow APY</th><th>Value</th><th></th></tr></thead>
+                <tbody id="borrows-body"></tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <!-- Collateral overview -->
+            <div class="card">
+              <h3>Collateral</h3>
+              <div id="collateral-list"></div>
+              <div class="summary-row" style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px">
+                <span class="summary-label">Total Collateral Value</span>
+                <span class="summary-value">$2,750</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">Liquidation Price (GLMR)</span>
+                <span class="summary-value text-red">$0.18</span>
+              </div>
+            </div>
+            <!-- Liquidation simulator -->
+            <div class="card">
+              <h3>Liquidation Simulator</h3>
+              <p class="text-muted" style="font-size:0.8rem;margin-bottom:12px">Simulate GLMR price change:</p>
+              <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-muted);margin-bottom:4px">
+                <span>$0.10</span><span>Current: $<span id="sim-price">0.28</span></span><span>$0.50</span>
+              </div>
+              <input type="range" class="range-slider" id="liq-slider" min="10" max="50" value="28" step="1">
+              <table class="sim-table" id="sim-table">
+                <tbody></tbody>
+              </table>
+              <p class="text-muted" style="font-size:0.8rem;margin-top:12px" id="sim-info">
+                At $0.18, your GLMR position becomes liquidatable. Current buffer: 35.7%
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== FLASH LOANS ==================== -->
+      <section class="page" id="page-flash-loans">
+        <div class="page-header">
+          <h2>Flash Loans</h2>
+          <p>Uncollateralized loans repaid within a single transaction. 0.09% fee.</p>
+        </div>
+        <div style="max-width:900px;margin:0 auto">
+          <!-- Flash loan form -->
+          <div class="card">
+            <h3>Execute Flash Loan</h3>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Token</label>
+                <select class="form-select" id="flash-token">
+                  <option value="GLMR">GLMR</option><option value="USDC">USDC</option>
+                  <option value="WETH">WETH</option><option value="PLEND">PLEND</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Amount</label>
+                <input class="form-input" id="flash-amount" type="number" placeholder="50000" min="0" step="any">
+              </div>
+            </div>
+            <div class="grid-2" style="margin-top:8px">
+              <div class="form-info">Available Liquidity: <strong id="flash-liquidity">$1,200,000</strong></div>
+              <div class="form-info">Fee (0.09%): <strong class="text-accent" id="flash-fee">$0.00</strong></div>
+            </div>
+            <div class="grid-2" style="margin-top:4px">
+              <div class="form-info">You Receive: <strong id="flash-receive">0 GLMR</strong></div>
+              <div class="form-info">You Must Return: <strong id="flash-return">0 GLMR</strong></div>
+            </div>
+            <button class="btn-primary" id="flash-btn" style="margin-top:16px">Execute Flash Loan</button>
+          </div>
+
+          <!-- Flow visualization -->
+          <div class="card">
+            <h3>Flash Loan Lifecycle</h3>
+            <div class="flow-container" id="flow-container">
+              <div class="flow-node" id="flow-pool1">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <span class="flow-node-label">Pool<br>Lend</span>
+              </div>
+              <div class="flow-arrow" id="flow-a1"><span class="flow-amount" id="flow-amt1"></span></div>
+              <div class="flow-node" id="flow-receiver">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>
+                <span class="flow-node-label">Receiver<br>Callback</span>
+              </div>
+              <div class="flow-arrow" id="flow-a2"><span class="flow-amount" id="flow-amt2"></span></div>
+              <div class="flow-node" id="flow-action">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="13,2 7,12 10,12 9,22 15,12 12,12 13,2"/></svg>
+                <span class="flow-node-label">Action<br>Use Funds</span>
+              </div>
+              <div class="flow-arrow" id="flow-a3"><span class="flow-amount" id="flow-amt3"></span></div>
+              <div class="flow-node" id="flow-pool2">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
+                <span class="flow-node-label">Pool<br>Repay+Fee</span>
+              </div>
+            </div>
+            <div style="text-align:center">
+              <button class="btn-accent-sm" id="demo-flash-btn">Run Demo</button>
+            </div>
+          </div>
+
+          <!-- Flash loan history -->
+          <div class="card">
+            <h3>Flash Loan History</h3>
+            <table>
+              <thead><tr><th>Time</th><th>Token</th><th>Amount</th><th>Fee</th><th>Status</th><th>Tx</th></tr></thead>
+              <tbody id="flash-history-body"></tbody>
+            </table>
+          </div>
+
+          <!-- Fee calculator -->
+          <div class="card">
+            <h3>Fee Calculator</h3>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Amount</label>
+                <input class="form-input" id="fee-calc-amount" type="number" placeholder="100000" min="0" step="any">
+              </div>
+              <div style="display:flex;flex-direction:column;justify-content:center;gap:4px">
+                <div class="form-info">Fee Rate: <strong>0.09%</strong></div>
+                <div class="form-info">Fee: <strong class="text-accent" id="fee-calc-fee">$0.00</strong></div>
+                <div class="form-info">Total Return: <strong id="fee-calc-total">$0.00</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== ANALYTICS ==================== -->
+      <section class="page" id="page-analytics">
+        <div class="page-header">
+          <h2>Analytics</h2>
+          <p>Protocol metrics and market insights.</p>
+        </div>
+
+        <!-- Row 1: Two charts -->
+        <div class="grid-2">
+          <div class="card">
+            <h3>TVL Over Time (30 Days)</h3>
+            <canvas id="tvl-chart" height="280"></canvas>
+          </div>
+          <div class="card">
+            <h3>Utilization by Market</h3>
+            <canvas id="util-chart" height="280"></canvas>
+          </div>
+        </div>
+
+        <!-- Row 2: Interactive interest rate curves -->
+        <div class="card">
+          <h3>Interactive Interest Rate Curves</h3>
+          <canvas id="interactive-rate-chart" height="350"></canvas>
+          <div class="grid-2" style="margin-top:16px;gap:16px">
+            <div class="form-group">
+              <label class="form-label">Base Rate: <span id="param-base-val">2%</span></label>
+              <input type="range" class="range-slider" id="param-base" min="0" max="10" value="2" step="0.5">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Slope 1: <span id="param-slope1-val">10%</span></label>
+              <input type="range" class="range-slider" id="param-slope1" min="0" max="30" value="10" step="1">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Slope 2: <span id="param-slope2-val">100%</span></label>
+              <input type="range" class="range-slider" id="param-slope2" min="20" max="300" value="100" step="5">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Kink: <span id="param-kink-val">80%</span></label>
+              <input type="range" class="range-slider" id="param-kink" min="50" max="95" value="80" step="1">
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 3: Top depositors + borrowers -->
+        <div class="grid-2">
+          <div class="card">
+            <h3>Top Depositors</h3>
+            <table>
+              <thead><tr><th>#</th><th>Address</th><th>Deposits</th></tr></thead>
+              <tbody id="top-depositors"></tbody>
+            </table>
+          </div>
+          <div class="card">
+            <h3>Top Borrowers</h3>
+            <table>
+              <thead><tr><th>#</th><th>Address</th><th>Borrows</th></tr></thead>
+              <tbody id="top-borrowers"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
     </div>
   </div>
-
-  <footer>
-    Built for the <a href="https://polkadothackathon.com/">Polkadot Solidity Hackathon 2026</a>
-    &middot; Powered by Moonbeam EVM
-  </footer>
 
   <script src="app.js"></script>
 </body>
